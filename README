@@ -1,0 +1,16 @@
+Browser2Ram is an android application designed to work around performance
+issues with the stock browser on the Asus Transformer Prime. On boot
+Browser2Ram copies all browser data to a tmpfs. This improves read/write
+performance at the cost of data peristence. To recover some level of
+data persistance browser data is stored to disk approximately every
+twelve hours and on shutdown.
+
+To begin using Browser2Ram install it and then reboot the tablet. To stop
+using Browser2Ram it is recommended to reboot before and after uninstalling
+to prevent possible data loss.
+
+Things to Note:
+
+1) Requires root.
+2) Only tested on a stock rooted Transformer Prime.
+3) Lacks any error checking.
