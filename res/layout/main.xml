@@ -7,7 +7,7 @@
 <TextView
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:text="Hello World, Browser2Ram"
+    android:text="Browser2Ram is now ready to use. Reboot to complete installation."
     />
 </LinearLayout>
 
