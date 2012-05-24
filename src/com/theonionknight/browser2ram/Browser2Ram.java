@@ -40,6 +40,7 @@ public class Browser2Ram extends BroadcastReceiver {
             os.writeBytes("mount -t tmpfs browser /data/data/com.android.browser\n");
             os.writeBytes("chown $(" + owners + ") /data/data/com.android.browser\n");
             os.writeBytes("chmod $(" + access + ") /data/data/com.android.browser\n");
+            os.writeBytes("rm -r /data/local/data/data/com.android.browser/cache/webview*\n");
             os.writeBytes("cp -ra /data/local/data/data/com.android.browser/* /data/data/com.android.browser\n");
         } catch (Exception e) {
             return;
@@ -52,11 +53,31 @@ public class Browser2Ram extends BroadcastReceiver {
             AlarmManager.INTERVAL_HALF_DAY, broadcast);
     }
 
+    private static final String update =
+        "find /data/data/com.android.browser/ -type f | while read X ; do" +
+        "    Y=\"$(echo \"$X\" | sed 's:^/data/data/:/data/local/data/data/:')\" ;" +
+        "    if ! [ x\"$(echo \"$X\" | sed 's:/data/data/com.android.browser/cache/.*::')\" = x\"\" ] ; then" +
+        "        if ! [ -e \"$Y\" ] || [ $(stat -c '%Y' \"$X\") -gt $(stat -c '%Y' \"$Y\") ] ; then" +
+        "            if [ -e \"$(dirname \"$X\")\" ] ; then" +
+        "                cp -a \"$X\" \"$Y\" ;" +
+        "            else" +
+        "                while ! [ x\"$(dirname \"$X\")\" = x\"/data/data/com.android.browser\" ] ; do" +
+        "                    X=\"$(dirname \"$X\")\" ;" +
+        "                done ;" +
+        "                cp -ra \"$X\" \"$(echo \"$X\" | sed 's:^/data/data/:/data/local/data/data/:')\" ;"  +
+        "            fi ;" +
+        "        fi ;" +
+        "    fi ;" +
+        "done ;" +
+        "cp -a /data/local/data/data/com.android.browser/cache/browser_state.parcel " +
+            "/data/data/com.android.browser/cache/browser_state.parcel" +
+        "\n";
+
     private void onShutdown(Context context) {
         try {
             final Process su = Runtime.getRuntime().exec("su");
             final DataOutputStream os = new DataOutputStream(su.getOutputStream());
-            os.writeBytes("cp -ra /data/data/com.android.browser/* /data/local/data/data/com.android.browser\n");
+            os.writeBytes(update);
         } catch (Exception e) {
             return;
         }
@@ -66,7 +87,7 @@ public class Browser2Ram extends BroadcastReceiver {
         try {
             final Process su = Runtime.getRuntime().exec("su");
             final DataOutputStream os = new DataOutputStream(su.getOutputStream());
-            os.writeBytes("cp -ra /data/data/com.android.browser/* /data/local/data/data/com.android.browser\n");
+            os.writeBytes(update);
         } catch (Exception e) {
             return;
         }
